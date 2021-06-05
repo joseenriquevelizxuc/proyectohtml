@@ -1,0 +1,206 @@
+package codigo;
+
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    public String RESULTADO="";
+    private Symbol s;
+    
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+
+
+terminal htmlinicio, htmlfin, encabezadoinicio, encabezadofin, titulo, cuerpoinicio, cuerpofin, tablainicio, tablafin, listainicio, listafin, imageninicio, imagenfin, filainicio, filafin, 
+enlace, ancho, altura, negrita, pagina, imprimir, coma, punto_coma, dos_puntos, igual, suma, resta, multiplicacion, division, comillas, parentesis_a, parentesis_c, identificador, lista, 
+nombre, apellido, correo, web, numero, numero_real,;
+ 
+non terminal String Inicio, Ini, Cuerpo, Tabla, Informacion, Imagen1, Operacion, OperacionCom, Prueba, Cuerpofila, Nombre, Finaltabla, Lista, Enlace, Imagen, Borde;
+
+start with Inicio;
+Inicio ::= Ini:a {:RESULTADO=a;:};
+
+Ini ::= htmlinicio encabezadoinicio titulo igual comillas pagina:a comillas encabezadofin cuerpoinicio Cuerpo:b  Prueba:c FinalTabla:d cuerpofin htmlfin 
+{: String clav = "<html>" + "\n"+ "<head>" + "<title>" +  String.valueOf(a) + "</title>" + "</head>" + "\n" + "<body>" + "\n" + String.valueOf(b) + String.valueOf(c) + String.valueOf(d) + "</body>" + "\n" + "</html>" ;
+   RESULT=String.valueOf(clav);:};
+
+Cuerpo ::=  Borde:a Tabla:b tablafin 
+{: String clav = "<table>"  + String.valueOf(a) + "\n" + String.valueOf(b) + "\n" + "</table>" + "\n";
+RESULT=String.valueOf(clav);:} ;
+
+Borde::= tablainicio igual numero:a
+{:  String clave = "<style>"+"\n"+"table, th, td {"+"\n"+"border: "+ String.valueOf(a) +"px  solid black;"+"\n"+"}"+"\n"+"</style>";
+    RESULT = String.valueOf(clave);:};
+
+Tabla ::= filainicio Cuerpofila:a filafin
+{: String clave = "<tr>" + String.valueOf(a) + "</tr>" + "\n" ; RESULT=String.valueOf(clave);:} 
+| filainicio Cuerpofila:a filafin Tabla:b 
+{: String clave = "<tr>"+ String.valueOf(a) + "</tr>" + "\n" + String.valueOf(b);
+   RESULT=String.valueOf(clave);:};
+
+Cuerpofila ::= identificador igual comillas Informacion:a comillas 
+{: String clave = "<th>"+ String.valueOf(a) + "</th>" + "\n" ; RESULT=String.valueOf(clave);:} 
+   | identificador igual comillas Informacion:a comillas Cuerpofila:b
+ {: String clave = "<th>" + String.valueOf(a) + "</th>" + "\n" + String.valueOf(b) ; RESULT=String.valueOf(clave);:} ;
+
+
+Informacion ::= Nombre:a {:RESULT=String.valueOf(a);:} 
+                | numero:a {:RESULT=String.valueOf(a);:}
+                | correo:a {:RESULT=String.valueOf(a);:}
+                | Operacion:a {:RESULT=String.valueOf(a);:}
+                | OperacionCom:a {:RESULT=String.valueOf(a);:}
+                | Imagen1:a {:RESULT=String.valueOf(a);:};
+
+
+Nombre::= identificador:a
+{:String clave=String.valueOf(a);RESULT=String.valueOf(clave);:}
+| identificador:a Nombre:b {:String clave = String.valueOf(a) + String.valueOf(b);RESULT=String.valueOf(clave);:} ;
+
+Operacion::=  numero:a suma numero:b{: int var1 = Integer.parseInt((String)a);
+                             int var2 = Integer.parseInt((String)b);
+                             int clav= var1+var2;
+    RESULT = String.valueOf(clav);:}
+
+    | numero:a resta numero:b{: int var1 = Integer.parseInt((String)a);
+                             int var2 = Integer.parseInt((String)b);
+                             int clav= var1-var2;
+    RESULT = String.valueOf(clav);:}
+
+    | numero:a multiplicacion numero:b{: int var1 = Integer.parseInt((String)a);
+                             int var2 = Integer.parseInt((String)b);
+                             int clav= var1*var2;
+    RESULT = String.valueOf(clav);:}
+    | numero:a division numero:b{: int var1 = Integer.parseInt((String)a);
+                             int var2 = Integer.parseInt((String)b);
+                             int clav= var1/var2;
+    RESULT = String.valueOf(clav);:}
+;
+OperacionCom ::=
+   parentesis_a numero:a suma numero:b parentesis_c suma numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1+var2;
+                             double clav1= clav+var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a suma numero:b parentesis_c resta numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1+var2;
+                             double clav1= clav-var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a suma numero:b parentesis_c multiplicacion numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1+var2;
+                             double clav1= clav*var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a suma numero:b parentesis_c division numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1+var2;
+                             double clav1= clav/var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a resta numero:b parentesis_c suma numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1-var2;
+                             double clav1= clav+var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a resta numero:b parentesis_c resta numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1-var2;
+                             double clav1= clav-var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a resta numero:b parentesis_c multiplicacion numero_real:c {: double var1 = Integer.parseInt((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1-var2;
+                             double clav1= clav*var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a resta numero:b parentesis_c division numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1-var2;
+                             double clav1= clav/var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a multiplicacion numero:b parentesis_c suma numero_real:c {: double var1 = Double.parseDouble((String)a);
+                            double var2 = Double.parseDouble((String)b);
+                            double var3 = Double.parseDouble((String)c);
+                            double clav= var1*var2;
+                            double clav1= clav+var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a multiplicacion numero:b parentesis_c resta numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1*var2;
+                             double clav1= clav-var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a multiplicacion numero:b parentesis_c multiplicacion numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1*var2;
+                             double clav1= clav*var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a multiplicacion numero:b parentesis_c division numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1*var2;
+                             double clav1= clav/var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a division numero:b parentesis_c suma numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1/var2;
+                             double clav1= clav+var3;
+    RESULT = String.valueOf(clav1);:}
+
+    | parentesis_a numero:a division numero:b parentesis_c resta numero_real:c {: double var1 = Double.parseDouble((String)a);
+                             double var2 = Double.parseDouble((String)b);
+                             double var3 = Double.parseDouble((String)c);
+                             double clav= var1/var2;
+                             double clav1= clav-var3;
+    RESULT = String.valueOf(clav1);:}
+;
+
+Imagen1 ::= imageninicio identificador:a imagenfin
+{:String clave = "<img src=" + "width=" + String.valueOf(a) + "200" + "height=" + String.valueOf(a) + "200";
+    RESULT = String.valueOf(clave);:} ;
+
+
+
+Finaltabla ::= Lista:a Enlace:b Imagen:c {: String clave =  String.valueOf(a)  + String.valueOf(b) + String.valueOf(c) + "\n";
+   RESULT = String.valueOf(clave);:};
+
+Lista ::= listainicio Nombre:a coma listafin {: String clav =  "<li>" + String.valueOf(a)  + "</li>" + "\n";
+   RESULT = String.valueOf(clav);:} | listainicio Nombre:a coma Lista:b {: String clav =  "<li>" + String.valueOf(a)  + "</li>" +  String.valueOf(b) + "\n";
+   RESULT = String.valueOf(clav);:};
+
+
+Enlace ::= enlace igual comillas web:a punto_coma {:  String clave =  String.valueOf(a);
+                 RESULT = String.valueOf(clave);:};
+
+
+Imagen ::= imageninicio identificador:a igual comillas identificador:b  identificador:c comillas enlace:d igual comillas web:e punto_coma ancho dos_puntos numero:f altura:g dos_puntos
+numero imagenfin {:  String clav = "<img src=" + String.valueOf(a) + String.valueOf(b) + String.valueOf(c) + String.valueOf(d) + String.valueOf(e) + "width=" + String.valueOf(f) + "200" + "height=" + String.valueOf(g) + "200";
+    RESULT = String.valueOf(clav);:};
+
